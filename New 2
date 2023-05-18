@@ -1,0 +1,37 @@
+const tus = require('tus-node-server');
+
+const events = tus.EVENTS;
+
+const server = new tus.Server();
+
+// Initialize tus server...
+
+server.on(events.EVENT_UPLOAD_COMPLETE, (event) => {
+
+  const request = event.file.request;
+
+  const clientIP = request.headers['x-forwarded-for'] || request.connection.remoteAddress;
+
+  console.log('Client IP address:', clientIP);
+
+});
+---------------------
+
+const tus = require('tus-node-server');
+
+const server = new tus.Server();
+
+server.on(tus.EVENTS.EVENT_UPLOAD_COMPLETE, (event) => {
+  const request = event.request;
+  const clientIP = request.ip; // Get the client's IP address
+
+  console.log('Client IP:', clientIP);
+});
+
+// Start the server
+server.datastore = new tus.FileStore({
+  path: '/path/to/files' // Specify the path where uploaded files are stored
+});
+server.listen({ port: 3000 }, () => {
+  console.log('Tus server listening on port 3000');
+});
