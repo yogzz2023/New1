@@ -1,0 +1,39 @@
+javascript
+
+Copy code
+
+const tus = require('tus-node-server');
+
+const FileStore = require('tus-node-server/lib/stores/FileStore');
+
+const server = new tus.Server();
+
+const store = new FileStore({
+
+  path: '/path/to/files'
+
+});
+
+server.datastore = store;
+
+// Event handler for 'pre-create' event
+
+server.on(tus.EVENTS.EVENT_PRE_CREATE, (event) => {
+
+  const request = event.request;
+
+  const clientIP = request.headers['x-forwarded-for'] || request.connection.remoteAddress;
+
+  console.log(`Client IP Address: ${clientIP}`);
+
+});
+
+// Start the server
+
+server.listen({ port: 8080 }, () => {
+
+  console.log('Server is listening on port 8080');
+
+});
+
+In the above code:
