@@ -1,0 +1,219 @@
+const tus = require('tus-node-server');
+
+const server = new tus.Server();
+
+server.datastore = new tus.FileStore({
+
+  path: '/path/to/uploaded/files'
+
+});
+
+server.listen({ port: 1080 }, () => {
+
+  console.log('Tus server listening on port 1080');
+
+});
+
+const tus = require('tus-js-client');
+
+const file = document.getElementById('file-input').files[0];
+
+const upload = new tus.Upload(file, {
+
+  endpoint: 'http://your-tus-server.com/files',
+
+  resume: true,
+
+  metadata: {
+
+    filename: file.name,
+
+    filetype: file.type
+
+  },
+
+  beforeSend: function (request) {
+
+    // Retrieve the client IP address here and add it as a custom header
+
+    const clientIpAddress = getClientIpAddress();
+
+    request.setRequestHeader('X-Client-IP', clientIpAddress);
+
+  },
+
+  onProgress: function (bytesUploaded, bytesTotal) {
+
+    const percentage = (bytesUploaded / bytesTotal * 100).toFixed(2);
+
+    console.log(`Uploaded ${percentage}%`);
+
+  },
+
+  onSuccess: function () {
+
+    console.log('Upload finished');
+
+  },
+
+  onError: function (error) {
+
+    console.log(`Upload error: ${error}`);
+
+  }
+
+});
+
+upload.start();
+
+function getClientIpAddress() {
+
+  // Implement a method to retrieve the client IP address here
+
+  // This can depend on your server setup and infrastructure
+
+  // For example, if you're behind a reverse proxy, you might need to check request headers
+
+  // You can use libraries like "request-ip" to simplify IP retrieval
+
+  return '127.0.0.1';
+
+}
+
+const express = require('express');
+
+const app = express();
+
+app.post('/files', (req, res) => {
+
+  const clientIpAddress = req.header('X-Client-IP');
+
+  console.log(`Client IP address: ${clientIpAddress}`);
+
+  // Rest of your file upload handling logic here
+
+});
+
+app.listen(3000, () => {
+
+  console
+
+const tus = require('tus-node-server');
+
+const express = require('express');
+
+const app = express();
+
+const server = new tus.Server();
+
+// Custom middleware to extract client IP address
+
+app.use((req, res, next) => {
+
+  const clientIP = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+
+  req.clientIP = clientIP;
+
+  next();
+
+});
+
+// Register tus-node-server middleware
+
+app.all('/files', tus.nodeMiddleware(server));
+
+// Start the server
+
+app.listen(3000, () => {
+
+  console.log('Tus server listening on port 3000');
+
+});
+
+const tus = require('tus-js-client');
+
+const client = new tus.Upload(file, {
+
+  endpoint: 'http://your-tus-server.com/files',
+
+  headers: {
+
+    'Client-IP': '<client IP address>', // Replace with the actual client IP address
+
+  },
+
+  onError: (error) => {
+
+    console.log('Upload error', error);
+
+  },
+
+  onProgress: (bytesUploaded, bytesTotal) => {
+
+    const percentage = (bytesUploaded / bytesTotal * 100).toFixed(2);
+
+    console.log(`Upload progress: ${percentage}%`);
+
+  },
+
+  onSuccess: () => {
+
+    console.log('Upload complete');
+
+  },
+
+});
+
+client.start();
+
+const express = require('express');
+
+const tus = require('tus-node-server');
+
+const app = express();
+
+app.use('/files', tus.handle({
+
+  // tus-node-server configuration
+
+  // ...
+
+  // ...
+
+  onCreateFile(req, file, options) {
+
+    const clientIP = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+
+    console.log('Client IP:', clientIP);
+
+  },
+
+}));
+
+app.listen(3000, () => {
+
+  console.log('Server started on port 3000');
+
+});
+
+const tus = require('tus-js-client');
+
+const upload = new tus.Upload(file, {
+
+  endpoint: 'http://your-tus-server.com/files',
+
+  // tus-js-client configuration
+
+  // ...
+
+  // ...
+
+  headers: {
+
+    'X-Forwarded-For': '<CLIENT_IP_ADDRESS>',
+
+  },
+
+});
+
+upload.start();
